@@ -172,7 +172,7 @@ void ViewAllObjects(Truba& truba,KS&ks) {
         }
     }
     else {
-        cout << "Вы ещё не сохранили данные" << endl;
+        cout << "Вы ещё не сохранили/загрузили данные" << endl;
     }
  }
     
@@ -213,6 +213,9 @@ int main() {
                 break;
            case 7:
                LoadInfo(truba,ks);
+               break;
+           case 0:
+               return 0;
                break;
 
         }
