@@ -61,6 +61,20 @@ void TrubaInfo(Truba& truba) {
     truba.flag_tr = 1;
 }
 
+
+void EditTruba(Truba& truba) {
+    if (truba.name_tr.size() != 0) {
+        bool inrep = false;
+        cout << "Труба в ремонте? (0 - Нет, 1 - Да)";
+        cin >> inrep;
+        truba.in_remont_tr = inrep;
+    }
+    else {
+        cout << "Трубы не найдены" << endl;
+
+    }
+}
+
 void KSInfo(KS& ks) {
     setlocale(LC_ALL, "ru");
     cout << "Введите название КС: ";
@@ -79,47 +93,105 @@ void KSInfo(KS& ks) {
     ks.flag_ks = 1;
     }
 
-void SaveInfo(Truba& truba, KS& ks) {
-    ofstream fout;
-    if (truba.flag_tr == 1 && ks.flag_ks == 1) {
-        fout.open("save_info.txt", ios::out);
-        if (fout.is_open()) {
-            fout << "Труба" << endl;
-            fout << truba.name_tr << endl << truba.dlina_tr << endl << truba.diameter_tr << endl << truba.in_remont_tr << endl;
-            fout << "KS" << endl;
-            fout << ks.name_ks << endl << ks.kolvo_tzehov_ks << endl << ks.tzeh_rabota_ks << endl << ks.effect_ks << endl;
-            fout.close();
-        }
+void startWork(KS& ks) {
+    if (ks.kolvo_tzehov_ks < ks.tzeh_rabota_ks) {
+        ks.kolvo_tzehov_ks++;
+        cout << "Цех успешно начал работать" << endl;
     }
-    else{
-        cout << "Вы добавили не все объекты" << endl;
+    else {
+        cout << "Все цехи уже в работе" << endl;
     }
 }
 
-void LoadInfo(Truba& truba, KS& ks) {
-    ifstream fin;
-    if (truba.flag_tr == 1 && ks.flag_ks == 1) {
-        fin.open("save_info.txt", ios::in);
-        if (fin.is_open()) {
-            fin >> truba.name_tr;
-
-            fin >> truba.dlina_tr;
-            fin >> truba.diameter_tr;
-            fin >> truba.in_remont_tr;
-            fin >> ks.name_ks;
-            fin >> ks.kolvo_tzehov_ks;
-            fin >> ks.tzeh_rabota_ks;
-            fin >> ks.effect_ks;
-            fin.close();
-            truba.load_tr = 1;
-            ks.load_ks = 1;
-        }
-
+void stopWork(KS& ks) {
+    if (ks.kolvo_tzehov_ks > 0) {
+        ks.kolvo_tzehov_ks--;
+        cout << "Цех остановлен" << endl;
     }
     else {
-        cout << "Нечего загружать" << endl;
+        cout << "Нет цехов в работе" << endl;
     }
-    
+}
+
+void SaveInfo(Truba& truba, KS& ks) {
+    ofstream fout;
+    //if (truba.flag_tr == 1 && ks.flag_ks == 1) {
+        fout.open("save_info.txt", ios::out);
+        if (fout.is_open()) {
+            if (truba.name_tr.size() != 0) {
+                fout << "Труба" << endl;
+                fout << truba.name_tr << endl << truba.dlina_tr << endl << truba.diameter_tr << endl << truba.in_remont_tr << endl;
+            }
+            else {
+                cout << "Не удалось открыть файл" << endl;
+            }
+            if (ks.name_ks.size() != 0) {
+                fout << "KS" << endl;
+                fout << ks.name_ks << endl << ks.kolvo_tzehov_ks << endl << ks.tzeh_rabota_ks << endl << ks.effect_ks << endl;
+            }
+            else {
+                cout << "Не удалось открыть файл" << endl;
+            }
+        }
+        fout.close();
+        if (truba.name_tr.size() == 0 && ks.name_ks.size() == 0) {
+            cout << "Введите данные для сохранения" << endl;
+        }
+        else {
+            cout << "Данные успешно сохранены" << endl;
+        }
+}
+
+void LoadInfo(Truba& truba, KS& ks) {
+    string line;
+    ifstream file("save_info.txt");
+    if (file.is_open()) {
+        getline(file, line);
+        if (line == "Труба") {
+            getline(file, truba.name_tr);
+
+            getline(file, line);
+            truba.dlina_tr = stoi(line);
+
+            getline(file, line);
+            truba.diameter_tr = stoi(line);
+
+            getline(file, line);
+            truba.in_remont_tr = stoi(line);
+
+            getline(file, line);
+            if (line == "KS") {
+                getline(file, ks.name_ks);
+
+                getline(file, line);
+                ks.kolvo_tzehov_ks = stoi(line);
+
+                getline(file, line);
+                ks.tzeh_rabota_ks = stoi(line);
+
+                getline(file, line);
+                ks.effect_ks = stoi(line);
+            }
+            cout << "Данные успешно загружены" << endl;
+        }
+        else if (line == "KS") {
+            getline(file, ks.name_ks);
+
+            getline(file, line);
+            ks.kolvo_tzehov_ks = stoi(line);
+
+            getline(file, line);
+            ks.tzeh_rabota_ks = stoi(line);
+
+            getline(file, line);
+            ks.effect_ks = stoi(line);
+            cout << "Данные успешно загружены" << endl;
+        }
+        else {
+            cout << "Не удалось открыть файл" << endl;
+        }
+        file.close();
+    }
 }
 
 
@@ -208,6 +280,27 @@ int main() {
             case 3:
                 ViewAllObjects(truba,ks);
                 break;
+            case 4:
+                EditTruba(truba);
+                break;
+            case 5:
+                if (ks.name_ks.size() != 0) {
+                    int choice;
+                    cout << "1. Запустить цех" << endl;
+                    cout << "2. Остановать цех" << endl;
+                    cin >> choice;
+                    Proverka(1, 2);
+                    switch (choice) {
+                    case 1: {
+                        startWork(ks);
+                        break;
+                    }
+                    case 2: {
+                        stopWork(ks);
+                        break;
+                    }
+                    }
+                }
            case 6:
                 SaveInfo(truba, ks);
                 break;
